@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Jóváhagyott Gombák Térképe</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        body { font-family: Arial; margin: 0; }
+        #map { height: 100vh; width: 100%; }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+async function loadData() {
+    const res = await fetch("/api/admin/approved")
+    const data = await res.json()
+
+    const map = L.map('map').setView([47.0, 19.0], 7)
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+    }).addTo(map)
+
+    data.forEach(item => {
+        const marker = L.marker([item.latitude, item.longitude]).addTo(map)
+
+        marker.bindPopup(`
+            <b>${item.species}</b><br>
+            <img src="${item.image_url}" width="150"><br>
+            Dátum: ${item.timestamp}
+        `)
+    })
+}
+
+loadData()
+</script>
+
+</body>
+</html>

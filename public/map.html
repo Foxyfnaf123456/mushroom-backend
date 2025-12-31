@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Gombatalálatok térképe</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        #map { height: 90vh; width: 100%; }
+        body { margin: 0; font-family: Arial; }
+    </style>
+</head>
+<body>
+
+<h2 style="padding:10px;">Gombatalálatok térképe</h2>
+<div id="map"></div>
+
+<script>
+async function loadData() {
+    const res = await fetch("/api/admin/pending")  // vagy /api/all ha majd csinálunk olyat
+    const data = await res.json()
+
+    const map = L.map('map').setView([47.0, 19.0], 7)
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+    }).addTo(map)
+
+    data.forEach(item => {
+        const marker = L.marker([item.latitude, item.longitude]).addTo(map)
+
+        marker.bindPopup(`
+            <b>${item.species}</b><br>
+            Bizonyosság: ${item.confidence}%<br>
+            <img src="${item.image_url}" width="150">
+        `)
+    })
+}
+
+loadData()
+</script>
+
+</body>
+</html>
